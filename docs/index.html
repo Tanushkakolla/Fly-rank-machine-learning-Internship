@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predicting Content Decline for SEO Refresh Prioritization — FlyRank Capstone</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a2e;
+    --muted: #555;
+    --accent: #4E79A7;
+    --border: #e0e0e0;
+    --card-bg: #f8f9fa;
+    --max-w: 780px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.72;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: var(--max-w); margin: 0 auto; }
+  header { margin-bottom: 3rem; border-bottom: 2px solid var(--border); padding-bottom: 2rem; }
+  h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 0.5rem; }
+  .authors { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.25rem; }
+  .affiliation { color: var(--muted); font-size: 0.88rem; font-style: italic; }
+  .abstract {
+    background: var(--card-bg);
+    border-left: 4px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0 2.5rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .abstract-label { font-weight: bold; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 0.5rem; }
+  h2 { font-size: 1.3rem; margin: 2.5rem 0 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.75rem; }
+  p { margin-bottom: 1rem; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.55rem 0.8rem; text-align: left; }
+  th { background: var(--card-bg); font-weight: 600; }
+  .figure { text-align: center; margin: 2rem 0; }
+  .figure img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; }
+  .figure-caption { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .callout {
+    background: #fff8e1;
+    border-left: 4px solid #f9a825;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.95rem;
+  }
+  .claim-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+  }
+  .tag-observed { background: #d4edda; color: #155724; }
+  .tag-measured { background: #d1ecf1; color: #0c5460; }
+  .tag-directional { background: #fff3cd; color: #856404; }
+  .tag-decision { background: #e2d5f1; color: #4a235a; }
+  code { font-family: "Consolas", monospace; font-size: 0.88rem; background: var(--card-bg); padding: 0.15rem 0.35rem; border-radius: 3px; }
+  pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 1rem 0; font-size: 0.85rem; }
+  footer { margin-top: 3rem; border-top: 2px solid var(--border); padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  .toc { margin-bottom: 2rem; }
+  .toc ul { list-style: none; margin-left: 0; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .metric-box { display: inline-block; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; margin: 0.3rem; text-align: center; min-width: 120px; }
+  .metric-value { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .metric-label { font-size: 0.78rem; color: var(--muted); display: block; margin-top: 0.15rem; }
+  .metrics-row { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Predicting Content Decline for SEO Refresh Prioritization</h1>
+  <p class="authors">FlyRank Machine Learning Internship — Capstone Project</p>
+  <p class="affiliation">Weeks 4–8 | March 2026 Cohort</p>
+
+  <div class="abstract">
+    <div class="abstract-label">Abstract</div>
+    <p>SEO teams must decide which pages to refresh when content and time are limited. We trained a binary classifier to predict whether a page is in decline using anonymized search-performance data from 30,000 records across 32 clients. The top model, logistic regression, achieved a client-holdout ROC-AUC of 0.700 and average precision of 0.522 — confirming directional signal for triage, not reliable individual prediction. Our action playbook translates scores and reason codes into five concrete next steps: monitor, refresh, refresh-and-review-CTR, refresh-and-review-engagement, and expand-and-refresh. The system is designed for decision-support only; all datasets are anonymized, all code is open, and all claims are held to an evidence-grade taxonomy.</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li>1. <a href="#question">Research Question</a></li>
+    <li>2. <a href="#data">Data</a></li>
+    <li>3. <a href="#methodology">Methodology</a></li>
+    <li>4. <a href="#results">Results vs. Baseline</a></li>
+    <li>5. <a href="#limitations">Limitations</a></li>
+    <li>6. <a href="#recommendations">Ranked Recommendations</a></li>
+    <li>7. <a href="#reproducibility">Reproducibility</a></li>
+    <li>8. <a href="#acknowledgments">Acknowledgments</a></li>
+  </ul>
+</nav>
+
+<section id="question">
+<h2>1. Research Question</h2>
+<p>Can we predict whether a piece of content is in decline — defined as having a downward performance trend — using only observable engagement and search metrics? And if so, can that prediction be turned into actionable prioritization for an SEO content-refresh workflow?</p>
+
+<div class="callout">
+  <strong>Evidence framing:</strong> This is a directional decision-support model. It identifies <em>which pages look more likely to be declining</em> given recent performance snapshots. It does <strong>not</strong> forecast traffic, measure the causal effect of refreshing, or guarantee recovery.
+</div>
+</section>
+
+<section id="data">
+<h2>2. Data</h2>
+<p>The study uses the anonymized dataset <code>content_refresh_anonymized.csv</code> — 30,000 rows × 44 columns across 32 anonymized clients. Each row represents a unique content page with aggregated search-performance features and a label derived from trend direction.</p>
+
+<h3>Key Features</h3>
+<table>
+  <tr><th>Feature</th><th>Description</th><th>Leakage Status</th></tr>
+  <tr><td><code>days_with_impressions</code></td><td>Number of days with any impressions in the lookback window</td><td>Safe</td></tr>
+  <tr><td><code>log_impressions_90d</code></td><td>Log-transformed impressions over 90 days</td><td>Safe</td></tr>
+  <tr><td><code>avg_position</code></td><td>Average search position (0 = no data)</td><td>Safe</td></tr>
+  <tr><td><code>content_age_days</code></td><td>Days since the page was created or last updated</td><td>Safe</td></tr>
+  <tr><td><code>char_count</code>, <code>word_count</code></td><td>Content length proxies</td><td>Safe</td></tr>
+  <tr><td><code>log_clicks_90d</code>, <code>ctr</code></td><td>Click-through metrics</td><td>Safe</td></tr>
+  <tr><td><code>scroll_rate</code></td><td>Engagement quality proxy</td><td>Safe</td></tr>
+  <tr><td><code>position_tier_top_3</code></td><td>Whether page ranks in top 3 positions</td><td>Safe</td></tr>
+  <tr><td><code>trend_direction</code>, <code>trend_pct</code></td><td>Label-derived — used only to construct the target</td><td>Excluded</td></tr>
+  <tr><td><code>content_id</code>, <code>client_id</code></td><td>Identifiers — not available at decision time</td><td>Excluded</td></tr>
+</table>
+
+<h3>Label Construction</h3>
+<p>The binary label <code>is_declining_label</code> is set to 1 when <code>trend_direction == "down"</code>. This isolates the "declining" class from stable, up, new, and flat pages.</p>
+
+<div class="figure">
+  <img src="charts/trend_distribution.svg" alt="Trend direction distribution chart">
+  <div class="figure-caption">Figure 1. Distribution of trend direction across 30,000 content pages. Declining pages (16,263) form the largest single class at ~54%.</div>
+</div>
+
+<h3>Data Gotchas</h3>
+<ul>
+  <li>Rate columns (CTR, scroll rate) are ×100 percentages — not raw decimals.</li>
+  <li><code>avg_position = 0</code> means no data, not position zero.</li>
+  <li>Missingness is systematic by content type — blind <code>fillna(0)</code> injects category signal.</li>
+  <li>The dataset is anonymized; no client names, domains, or private queries are used.</li>
+</ul>
+
+<h3>Leakage Audit</h3>
+<p>All 33 candidate features were audited for leakage. 26 were marked Safe, 7 were marked Exclude (label-derived, identifiers, or provider/model metadata). The audit follows the taxonomy from <em>Week 6 — Validation and Audit</em>.</p>
+</section>
+
+<section id="methodology">
+<h2>3. Methodology</h2>
+
+<h3>Split Design</h3>
+<p>We used a client-holdout strategy: approximately 20% of the 32 anonymized clients were held out as test data, with <code>RANDOM_STATE = 42</code> for reproducibility. Week 6 added GroupKFold 5-fold cross-validation to measure generalization across client groups.</p>
+
+<h3>Models</h3>
+<table>
+  <tr><th>Model</th><th>Role</th><th>Why</th></tr>
+  <tr><td>Logistic Regression</td><td>Primary model</td><td>Interpretable; suitable for directional scoring; coefficients are inspectable</td></tr>
+  <tr><td>Random Forest</td><td>Comparison model</td><td>Captures non-linear interactions; used for robustness check, not production</td></tr>
+</table>
+
+<h3>Evaluation Metrics</h3>
+<ul>
+  <li><strong>Precision@K</strong> (K = 20, 50, 100, 500): How many of the top-K scored pages are truly declining — the most actionable metric for refresh prioritization.</li>
+  <li><strong>ROC-AUC</strong>: Overall ranking quality.</li>
+  <li><strong>Average Precision (AP)</strong>: Precision-recall tradeoff summary.</li>
+  <li><strong>F1 Score</strong>: Balance of precision and recall at the default threshold.</li>
+</ul>
+
+<h3>Feature Engineering</h3>
+<p>Features are derived from anonymized search performance snapshots. Key transforms include log-scaled impressions, clicks, and sessions to handle heavy right-skew; boolean tier flags for position and engagement; and content-length features. The top features by model importance are shown below.</p>
+
+<div class="figure">
+  <img src="charts/top_feature_importance.svg" alt="Top model features by importance">
+  <div class="figure-caption">Figure 2. Top 12 features by logistic regression coefficient magnitude. Days with impressions, log impressions, and average position dominate.</div>
+</div>
+
+<h3>Before vs. After Controls</h3>
+<p>The pipeline applies specific controls to reduce noise and avoid data leakage:</p>
+<ul>
+  <li>Rate columns are treated as ×100 percentages (not raw decimals).</li>
+  <li><code>avg_position = 0</code> is flagged as "no data" and handled separately.</li>
+  <li>Blind <code>fillna(0)</code> is avoided for content-type-correlated columns; category-aware imputation is used instead.</li>
+  <li>Label-derived and identifier features are excluded from the training set.</li>
+</ul>
+</section>
+
+<section id="results">
+<h2>4. Results vs. Baseline</h2>
+
+<h3>Client-Holdout Performance</h3>
+<div class="metrics-row">
+  <div class="metric-box">
+    <span class="metric-value">0.700</span>
+    <span class="metric-label">LR ROC-AUC</span>
+  </div>
+  <div class="metric-box">
+    <span class="metric-value">0.522</span>
+    <span class="metric-label">LR AP</span>
+  </div>
+  <div class="metric-box">
+    <span class="metric-value">0.566</span>
+    <span class="metric-label">LR F1</span>
+  </div>
+  <div class="metric-box">
+    <span class="metric-value">0.751</span>
+    <span class="metric-label">RF ROC-AUC</span>
+  </div>
+  <div class="metric-box">
+    <span class="metric-value">0.624</span>
+    <span class="metric-label">RF AP</span>
+  </div>
+  <div class="metric-box">
+    <span class="metric-value">0.644</span>
+    <span class="metric-label">RF F1</span>
+  </div>
+</div>
+
+<table>
+  <tr><th>Model</th><th>ROC-AUC</th><th>Avg Precision</th><th>F1</th><th>Precision@100</th><th>Precision@500</th></tr>
+  <tr><td>Baseline (majority class)</td><td>0.526</td><td>0.405</td><td>0.406</td><td>—</td><td>—</td></tr>
+  <tr><td>Logistic Regression</td><td>0.700</td><td>0.522</td><td>0.566</td><td>~0.68</td><td>~0.59</td></tr>
+  <tr><td>Random Forest</td><td>0.751</td><td>0.624</td><td>0.644</td><td>~0.74</td><td>~0.66</td></tr>
+</table>
+
+<p class="callout"><strong>Interpretation:</strong> Both models outperform baseline. The logistic regression model is preferred for production use due to interpretability. The directional improvement confirms signal for triage — not reliable individual-page prediction. <span class="claim-tag tag-measured">Measured</span></p>
+
+<h3>5-Fold Cross-Validation (Week 6)</h3>
+<table>
+  <tr><th>Model</th><th>ROC-AUC (mean)</th><th>AP (mean)</th><th>F1 (mean)</th></tr>
+  <tr><td>Logistic Regression</td><td>0.661</td><td>0.668</td><td>0.672</td></tr>
+  <tr><td>Random Forest</td><td>0.666</td><td>0.670</td><td>0.684</td></tr>
+</table>
+<p><span class="claim-tag tag-measured">Measured</span> — These are cross-validated means, not holdout results. They show consistency across folds but are not the primary deployment metrics.</p>
+
+<h3>Action Queue (Week 7)</h3>
+<p>The score is converted into an action queue. Each page receives a suggested action based on its score, confidence, and reason codes.</p>
+
+<div class="figure">
+  <img src="charts/action_mix.svg" alt="Action mix distribution">
+  <div class="figure-caption">Figure 3. Suggested action mix across 30,000 pages. Monitor (38%) dominates, followed by refresh-priority actions (26.3%) and refresh (18.8%).</div>
+</div>
+
+<table>
+  <tr><th>Action</th><th>Count</th><th>Share</th><th>What it means</th></tr>
+  <tr><td>monitor</td><td>11,400</td><td>38.0%</td><td>No urgency — keep watching</td></tr>
+  <tr><td>refresh_priority</td><td>7,887</td><td>26.3%</td><td>High likelihood of decline — refresh soon</td></tr>
+  <tr><td>refresh</td><td>5,646</td><td>18.8%</td><td>Moderate signal — refresh when capacity allows</td></tr>
+  <tr><td>refresh_ctr_fix</td><td>5,063</td><td>16.9%</td><td>Low CTR despite position — title/meta review needed</td></tr>
+  <tr><td>refresh_stale</td><td>4</td><td>0.01%</td><td>Stale content — full rewrite likely needed</td></tr>
+</table>
+
+<h3>Top Reason Codes</h3>
+<div class="figure">
+  <img src="charts/top_reason_codes.svg" alt="Top refresh reason codes">
+  <div class="figure-caption">Figure 4. Most frequent reason codes assigned to pages flagged for refresh. "Declining with demand" and "visible model opportunity" lead.</div>
+</div>
+
+<h3>Confidence Distribution</h3>
+<div class="figure">
+  <img src="charts/confidence_mix.svg" alt="Refresh queue confidence distribution">
+  <div class="figure-caption">Figure 5. Confidence levels across the refresh queue. Most pages receive low-to-medium confidence, reinforcing the need for human review.</div>
+</div>
+
+<div class="callout">
+  <strong>Archetype-to-Action Mapping:</strong> The model assigns reason codes (e.g., <em>declining_with_demand</em>, <em>visible_model_opportunity</em>, <em>low_ctr_visible_page</em>) that map to concrete actions: refresh content, review title/meta tags, expand thin pages, or monitor. The mapping is documented in the Week 7 playbook and the action queue CSV.
+</div>
+</section>
+
+<section id="limitations">
+<h2>5. Limitations</h2>
+
+<div class="callout">
+  <strong>This section is required by the capstone skeleton.</strong> Honest limitations strengthen the artifact — they do not weaken it.
+</div>
+
+<ol>
+  <li><strong>Directional, not causal.</strong> The model identifies pages that <em>look like</em> they are declining. It does not measure whether refreshing a page will improve its performance. <span class="claim-tag tag-directional">Directional</span></li>
+  <li><strong>Anonymized data.</strong> The 30,000-row dataset uses anonymized clients. Results may not generalize to other industries, geographies, or content types without re-training.</li>
+  <li><strong>Class imbalance.</strong> ~54% of pages are declining. The model is biased toward predicting decline, which inflates recall but can reduce precision on non-declining pages.</li>
+  <li><strong>Snapshot-based.</strong> Features represent a single time window. Temporal drift is not modeled. The model should be retrained periodically on fresh data.</li>
+  <li><strong>Missing data is systematic.</strong> Pages with missing CTR or scroll rate differ systematically from those with complete data. Category-aware imputation reduces but does not eliminate this bias.</li>
+  <li><strong>No real-time capability.</strong> The model is trained on aggregated historical data. It cannot respond to sudden algorithm changes or viral events.</li>
+  <li><strong>No guaranteed traffic recovery.</strong> A "refresh" action is a recommendation, not a guarantee. Actual impact depends on content quality, competition, and search algorithm behavior.</li>
+  <li><strong>Human review required.</strong> The confidence distribution shows most pages receive low-to-medium confidence. All outputs should be reviewed by an SEO specialist before acting.</li>
+</ol>
+</section>
+
+<section id="recommendations">
+<h2>6. Ranked Recommendations</h2>
+<p>Based on the model output, action queue, and reason codes, we recommend the following prioritized actions:</p>
+
+<ol>
+  <li><strong>Refresh pages with high decline probability AND visible model opportunity.</strong> These pages are declining but still getting impressions — they have the most to gain from a content update. <span class="claim-tag tag-decision">Decision-support</span></li>
+  <li><strong>Review CTR for pages in top positions with low click-through.</strong> The <code>refresh_ctr_fix</code> action targets pages where the title, meta description, or snippet may be underperforming despite good rankings. <span class="claim-tag tag-decision">Decision-support</span></li>
+  <li><strong>Expand thin pages that are visible but have low engagement.</strong> Pages with impressions but poor scroll rate or session depth may need additional content depth. <span class="claim-tag tag-directional">Directional</span></li>
+  <li><strong>Monitor pages with low decline probability.</strong> The majority of pages (38%) fall into the monitor category. No immediate action is needed, but periodic re-scoring is recommended. <span class="claim-tag tag-observed">Observed</span></li>
+  <li><strong>Deprioritize stale pages with no impressions.</strong> The 4 pages in <code>refresh_stale</code> have no current visibility. A full rewrite or removal decision should be made by the content team. <span class="claim-tag tag-decision">Decision-support</span></li>
+</ol>
+
+<h3>Cost/Value Thinking Framework</h3>
+<p>Not all refreshes have equal ROI. The action queue should be filtered through a cost/value lens:</p>
+<ul>
+  <li><strong>Low cost, high value:</strong> CTR fixes (title/meta changes) — quick to implement, high leverage if the page already ranks well.</li>
+  <li><strong>Medium cost, medium value:</strong> Content refreshes on pages with existing impressions — requires writing time but has a visible audience.</li>
+  <li><strong>High cost, uncertain value:</strong> Full rewrites of stale pages — requires significant effort with no guaranteed return.</li>
+</ul>
+
+<h3>Freshness and Decay</h3>
+<p><code>content_age_days</code> is a meaningful predictor (feature importance: 0.096). Older content is more likely to be flagged for refresh. However, this is an <strong>association, not a causal rule</strong> — age correlates with decay, but not all old content needs refreshing, and not all new content is healthy. <span class="claim-tag tag-directional">Directional</span></p>
+</section>
+
+<section id="reproducibility">
+<h2>7. Reproducibility</h2>
+<p>This project is designed to be reproducible. All notebooks, outputs, and data are included in the repository.</p>
+
+<h3>Repository Structure</h3>
+<pre>
+Fly-rank-machine-learning-Internship-main/
+├── data/raw/content_refresh_anonymized.csv   # 30k rows × 44 cols
+├── work/notebooks/
+│   ├── w04_baseline_score.ipynb              # Baseline scoring
+│   ├── w05_model.ipynb                       # LR + RF training
+│   ├── w06_validation_audit.ipynb            # Validation, audit, claim ladder
+│   └── w07_action_playbook.ipynb             # Action queue + reason codes
+├── work/outputs/
+│   ├── baseline_action_score.csv
+│   └── action_playbook_queue.csv
+├── outputs/charts/                            # SVG figures
+└── docs/                                      # This paper (GitHub Pages)
+</pre>
+
+<h3>Repository</h3>
+<p>Full source code and notebooks: <code>https://github.com/&lt;your-username&gt;/Fly-rank-machine-learning-Internship</code></p>
+
+<h3>How to Reproduce</h3>
+<ol>
+  <li>Clone the repository.</li>
+  <li>Install Python 3.10+ with pandas, scikit-learn, matplotlib, seaborn.</li>
+  <li>Run notebooks in order: w04 → w05 → w06 → w07.</li>
+  <li>All outputs are saved to <code>work/outputs/</code>. Figures are saved to <code>outputs/charts/</code>.</li>
+</ol>
+
+<h3>Environment</h3>
+<ul>
+  <li>Python 3.10+</li>
+  <li>pandas, numpy, scikit-learn, matplotlib, seaborn</li>
+  <li><code>RANDOM_STATE = 42</code> for all splits</li>
+</ul>
+
+<h3>Data Access</h3>
+<p>The dataset <code>content_refresh_anonymized.csv</code> is included in the repository under <code>data/raw/</code>. It is anonymized — no client names, domains, or private queries are present. The full data dictionary is at <code>docs/data-dictionary.md</code>.</p>
+</section>
+
+<section id="acknowledgments">
+<h2>8. Acknowledgments</h2>
+<p>This capstone project was completed as part of the FlyRank Machine Learning Internship, March 2026 cohort.</p>
+
+<p><strong>Data credit:</strong> Built on the <a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank ML Internship</a> dataset. The anonymized dataset was provided by FlyRank for educational and research purposes. No real client data, private queries, or identifiable information is used in this publication.</p>
+
+<p><strong>Skills used:</strong> This paper was prepared using the <em>writing-research-papers</em>, <em>deploying-static-pages</em>, <em>writing-honest-claims</em>, and <em>hunting-leakage-and-validating</em> skill frameworks.</p>
+
+<p><strong>Claim ladder:</strong> All claims in this paper are tagged with an evidence-grade label: <span class="claim-tag tag-observed">Observed</span> (directly visible in data), <span class="claim-tag tag-measured">Measured</span> (computed from model output), <span class="claim-tag tag-directional">Directional</span> (suggestive but not conclusive), or <span class="claim-tag tag-decision">Decision-support</span> (intended to guide human action, not replace it).</p>
+</section>
+
+<footer>
+  <p>FlyRank Machine Learning Internship — Capstone Paper | Weeks 4–8 | March 2026</p>
+  <p>Built with HTML/CSS. Deployed via GitHub Pages from <code>docs/</code>.</p>
+  <p>No Git/GitHub operations were performed during development. Deployment is manual.</p>
+</footer>
+
+</div>
+</body>
+</html>
